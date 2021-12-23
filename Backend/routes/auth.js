@@ -6,15 +6,18 @@ const bcrypt = require('bcryptjs');                                 // bcryptjs 
 const jwt = require('jsonwebtoken');                                // jwt-jasonwebtoken for authorization (when the user login again)
 
 const JWT_SECRET = 'ThisIsMayank'
+
+// END POINT-1
 // Create a user using POST: "/api/auth/createuser"- No login required.
+
 router.post("/createuser",[
   // Inserted checks. If these are not fulfilled by the user, error will be thrown.
     // name must be at least 5 chars long
     body("name", "Enter your name").isLength({ min: 3 }),
-    // username must be an email
+    // email must be a valid email
     body("email", "e.g., johndoe@gmail.com").isEmail(),
     // password must be at least 5 chars long
-    body("name", "Password must be of atleast 5 characters").isLength({
+    body("password", "Password must be of atleast 5 characters").isLength({
       min: 5,
     }),
   ],
@@ -42,24 +45,65 @@ router.post("/createuser",[
         password: secPass,
       })
 
+      // creating an object data that needs to be passed to the jwt.sign
+      const data = {
+        user:{
+          id: user.id
+        }
+      }
+      // jwt authentication
+      const authtoken = jwt.sign(data, JWT_SECRET);
+      // whatever will be in the body will be given as a response
+      //res.json(req.body)
+      res.json({authtoken})
+
+    }
+    catch(error)
+    {
+      console.error(error.message);
+      res.status(500).send('Internal Error Ocuured');
+    }
+  }
+);
+
+// END POINT-2
+// Authenticate a user using POST: "/api/auth/login"- No login required.
+
+router.post("/login",[
+    body("email", "Enter your email").isEmail(),
+    body("name", "Enter your password").exists()
+  ],
+
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const {email, password} = req.body;
+    try {
+      let user = await User.findOne(email);
+      if(!user)
+      {
+        return res.status(400).json({error: 'Please enter correct credentials'});
+      }
+      // checking for the password of the same user that entered his email
+      let comparePass = await bcrypt.compare(password, user.password);
+      if(!comparePass)
+      {
+        return res.status(400).json({error: 'Please enter correct credentials'});
+      }
       const data = {
         user:{
           id: user.id
         }
       }
       const authtoken = jwt.sign(data, JWT_SECRET);
-      console.log(authtoken);
-      // whatever will be in the body will be given as a response
-        //res.json(req.body)
-        res.json({authtoken})
-
+      res.json({authtoken})
     }
     catch(error)
     {
       console.error(error.message);
-      res.status(400).send('Some Error Occurred' );
+      res.status(500).send('Internal Error Ocuured');
     }
-  }
-);
-
+  })
 module.exports = router;
