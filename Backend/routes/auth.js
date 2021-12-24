@@ -4,10 +4,11 @@ const router = express.Router();
 const { body, validationResult } = require("express-validator");    // express validator to validate the user (at the time of register)
 const bcrypt = require('bcryptjs');                                 // bcryptjs for hashing passwords
 const jwt = require('jsonwebtoken');                                // jwt-jasonwebtoken for authorization (when the user login again)
+const fetchuser = require('../middleware/fetchuser')
 
 const JWT_SECRET = 'ThisIsMayank'
 
-// END POINT-1
+// ROUTE-1
 // Create a user using POST: "/api/auth/createuser"- No login required.
 
 router.post("/createuser",[
@@ -66,7 +67,7 @@ router.post("/createuser",[
   }
 );
 
-// END POINT-2
+// ROUTE-2
 // Authenticate a user using POST: "/api/auth/login"- No login required.
 
 router.post("/login",[
@@ -106,4 +107,20 @@ router.post("/login",[
       res.status(500).send('Internal Error Ocuured');
     }
   })
+
+// ROUTE-3
+// Get loggedIn user details using POST: "/api/auth/getuser"- Login required.
+router.post("/getuser", fetchuser, async (req, res) => {
+  try {
+    const userId = re.user.id;
+    const user = await User.findById(userId).select("-password");
+    res.send(user);
+  } 
+  catch(error)
+  {
+    console.error(error.message);
+    res.status(500).send('Internal Error Ocuured');
+  }
+})
+
 module.exports = router;
