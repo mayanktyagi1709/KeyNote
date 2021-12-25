@@ -39,7 +39,7 @@ router.post("/createuser",[
       }
       // create a new user
       const salt = await bcrypt.genSalt(10);
-      const secPass = await bcrypt.hash('req.body.password', salt);
+      const secPass = await bcrypt.hash(req.body.password, salt);
       user = await User.create({
         name: req.body.name,
         email: req.body.email,
@@ -72,7 +72,7 @@ router.post("/createuser",[
 
 router.post("/login",[
     body("email", "Enter your email").isEmail(),
-    body("name", "Enter your password").exists()
+    body("password", "Enter your password").exists()
   ],
 
   async (req, res) => {
@@ -82,7 +82,7 @@ router.post("/login",[
     }
     const {email, password} = req.body;
     try {
-      let user = await User.findOne(email);
+      let user = await User.findOne({email});
       if(!user)
       {
         return res.status(400).json({error: 'Please enter correct credentials'});
@@ -112,7 +112,7 @@ router.post("/login",[
 // Get loggedIn user details using POST: "/api/auth/getuser"- Login required.
 router.post("/getuser", fetchuser, async (req, res) => {
   try {
-    const userId = re.user.id;
+    const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
     res.send(user);
   } 
