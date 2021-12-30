@@ -15,7 +15,7 @@ const NoteState = (props) => {
         "Content-Type": "application/json",
         "auth-token":
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFjNmE0N2U2MzBhYzgwODJhZTc3NWEwIn0sImlhdCI6MTY0MDQwODE5MH0.YEKlfd6YvgdKWkIoSdVCJf6M0F9KxFrFUyg4ZbsqqcI",
-      }
+      },
     });
 
     const json = await response.json();
@@ -50,8 +50,21 @@ const NoteState = (props) => {
     // pushing the newly created note in the "notes" array and returning it
     setNotes(notes.concat(note));
   };
+
   // Delete a note
-  const deleteNote = (id) => {
+  const deleteNote = async(id) => {
+
+    const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
+      method: "DELETE", // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFjNmE0N2U2MzBhYzgwODJhZTc3NWEwIn0sImlhdCI6MTY0MDQwODE5MH0.YEKlfd6YvgdKWkIoSdVCJf6M0F9KxFrFUyg4ZbsqqcI",
+      },
+    });
+    const json = response.json(); // parses JSON response into native JavaScript objects
+
+    //Deleting node on the client side
     const newNotes = notes.filter((note) => {
       return note._id !== id;
     });
@@ -83,7 +96,9 @@ const NoteState = (props) => {
   };
 
   return (
-    <noteContext.Provider value={{ notes, addNote, deleteNote, editNote, getNote }}>
+    <noteContext.Provider
+      value={{ notes, addNote, deleteNote, editNote, getNote }}
+    >
       {props.children}
     </noteContext.Provider>
   );
