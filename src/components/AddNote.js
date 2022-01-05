@@ -1,6 +1,6 @@
 import React, {useState, useContext} from 'react'
 import noteContext from '../context/notes/noteContext'
-import Notes from './Notes'
+
 
 const AddNote = () => {
     const context = useContext(noteContext)
@@ -11,7 +11,7 @@ const AddNote = () => {
     {
         e.preventDefault();   // preventing page reloading while adding note
         addNote(note.title, note.description, note.tag);
-        setNote({id: "", etitle: "", edescription: "", etag: ""});
+        setNote({title: "", description: "", tag: ""})
     }
 
     const handleChange = (e) =>
